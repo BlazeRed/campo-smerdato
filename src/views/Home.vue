@@ -1,8 +1,8 @@
 <template>
   <v-container class="container" >
     <v-card class="card-width">
-      <v-toolbar color="primary" dark flat text>
-        <v-toolbar-title>Campo smerdato 💩</v-toolbar-title>
+      <v-toolbar color="brown" dark flat text>
+        <v-toolbar-title>Campo smerdato</v-toolbar-title>
       </v-toolbar>
       <v-card-text>
         <div row>
@@ -40,7 +40,7 @@
             v-bind:label="bombs.label"
             v-bind:thumb-color="bombs.color"
             v-bind:thumb-label="bombsPressed"
-            v-bind:min="min"
+            v-bind:min="10"
             v-bind:max="maxBombs"
             v-on:mousedown="bombsPressed = true"
             v-on:mouseup="!bombsPressed"
@@ -50,7 +50,7 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer/>
-        <v-btn color="primary" v-on:click="startGame()">Gioca</v-btn>
+        <v-btn color="brown" v-on:click="startGame()" dark>Gioca</v-btn>
       </v-card-actions>
     </v-card>
   </v-container>
@@ -81,14 +81,14 @@ export default {
   name: 'Home',
 
   data: () => ({
-    min: 1,
+    min: 9,
     max: 100,
     columnsPressed: false,
     rowsPressed: false,
     bombsPressed: false,
-    rows: { label: 'Righe', val: 1, color: 'pink' },
-    columns: { label: 'Colonne', val: 1, color: 'pink' },
-    bombs: { label: 'Stronzi', val: 0, color: 'brown' }
+    rows: { label: 'Righe', val: 1, color: 'primary' },
+    columns: { label: 'Colonne', val: 1, color: 'primary' },
+    bombs: { label: '💩', val: 0, color: 'brown' }
   }),
 
   beforeMount () {
@@ -100,7 +100,7 @@ export default {
 
   computed: {
     maxBombs () {
-      return this.rows.val * this.columns.val - 1
+      return this.rows.val * this.columns.val - 10
     }
   },
 
@@ -112,6 +112,7 @@ export default {
         bombs: this.bombs.val
       }
       this.$store.commit('setSettings', settings)
+      this.$router.push({ path: '/campo-smerdato' })
     }
   }
 
