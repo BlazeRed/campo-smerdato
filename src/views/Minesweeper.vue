@@ -82,7 +82,7 @@ export default {
       for (let i = 0; i < size; i += 1) {
         grid.push({
           hasBomb: false,
-          isOpen: false,
+          isFree: false,
           hasFlag: false,
           bombCount: 0,
           neighborhood: null
@@ -100,6 +100,31 @@ export default {
       this.grid = grid
       this.won = false
       this.bombCount = this.bombs
+    },
+    haveWeWon () {
+      if (this.bombCount !== 0) {
+        return
+      }
+      const remainingGrid = this.grid.find(g => !g.isFree && !g.hasFlag)
+      if (!remainingGrid) {
+        this.won = true
+      }
+    },
+    addFlag (cell) {
+      if (cell.isFree) {
+        return
+      }
+      cell.hasFlag = !cell.hasFlag
+
+      const flagCount = this.grid.reduce((accumulator, currentValue) => {
+        if (currentValue.hasFlag) {
+          return accumulator + 1
+        }
+        return accumulator
+      }, 0)
+
+      this.bombCount = this.bombs - flagCount
+      this.haveWeWon()
     },
     endGame () {
       this.$router.push({ path: '/' })

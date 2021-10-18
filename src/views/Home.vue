@@ -16,6 +16,7 @@
             v-bind:max="max"
             v-on:mousedown="rowsPressed = true"
             v-on:mouseup="!rowsPressed"
+            track-color="blue-grey lighten-4"
           />
           <span>{{ rows.val }}</span>
         </div>
@@ -30,6 +31,7 @@
             v-bind:max="max"
             v-on:mousedown="columnsPressed = true"
             v-on:mouseup="!columnsPressed"
+            track-color="blue-grey lighten-4"
           />
           <span>{{ columns.val }}</span>
         </div>
@@ -44,6 +46,7 @@
             v-bind:max="maxBombs"
             v-on:mousedown="bombsPressed = true"
             v-on:mouseup="!bombsPressed"
+            track-color="blue-grey lighten-4"
           />
           <span>{{ bombs.val }}</span>
         </div>
@@ -86,8 +89,8 @@ export default {
     columnsPressed: false,
     rowsPressed: false,
     bombsPressed: false,
-    rows: { label: 'Righe', val: 1, color: 'primary' },
-    columns: { label: 'Colonne', val: 1, color: 'primary' },
+    rows: { label: 'Righe', val: 1, color: 'blue-grey' },
+    columns: { label: 'Colonne', val: 1, color: 'blue-grey' },
     bombs: { label: '💩', val: 0, color: 'brown' }
   }),
 
