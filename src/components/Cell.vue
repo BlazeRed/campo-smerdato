@@ -3,7 +3,7 @@
     <div v-if="cell.isFree && cell.bombCount">
       {{ cell.bombCount }}
     </div>
-    <div v-if="cell.hasFlag">
+    <div v-if="cell.isFree && cell.hasBomb">
       &#128169;
     </div>
   </div>
@@ -24,15 +24,15 @@
 }
 
 .bomb {
-  background: #c0392b;
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .open {
   background: rgba(0, 0, 0, 0.05);
 }
 
-.flag {
-  background: #2ecc71;
+.flag:before {
+  content: '🪰';
 }
 </style>
 <script>

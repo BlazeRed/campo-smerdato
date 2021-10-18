@@ -10,6 +10,10 @@
             v-for="(cell, i) in grid"
             v-bind:key="i"
             v-bind:cell="cell"
+            v-on:click.native="clickCell(cell, i)"
+            v-on:click.right.native="addFlag(cell)"
+            v-on:dblclick.native.prevent="doubleClick(cell, i)"
+            v-on:contextmenu.native.prevent
           />
         </div>
       </v-card-text>
@@ -77,10 +81,11 @@ export default {
     },
     initGrid () {
       const size = this.rows * this.cols
-      const grid = []
+      this.grid = []
 
+      // Reset grid
       for (let i = 0; i < size; i += 1) {
-        grid.push({
+        this.grid.push({
           hasBomb: false,
           isFree: false,
           hasFlag: false,
@@ -89,22 +94,23 @@ export default {
         })
       }
 
+      // Add random bombs
       while (this.bombs > 0) {
         const num = Math.floor(Math.random() * size)
-        if (grid[num].hasBomb === false) {
+        if (this.grid[num].hasBomb === false) {
           this.bombs -= 1
-          grid[num].hasBomb = true
+          this.grid[num].hasBomb = true
         }
       }
 
-      this.grid = grid
       this.won = false
       this.bombCount = this.bombs
     },
-    haveWeWon () {
+    haveWon () {
       if (this.bombCount !== 0) {
-        return
+        return undefined
       }
+
       const remainingGrid = this.grid.find(g => !g.isFree && !g.hasFlag)
       if (!remainingGrid) {
         this.won = true
@@ -112,12 +118,12 @@ export default {
     },
     addFlag (cell) {
       if (cell.isFree) {
-        return
+        return undefined
       }
-      cell.hasFlag = !cell.hasFlag
 
-      const flagCount = this.grid.reduce((accumulator, currentValue) => {
-        if (currentValue.hasFlag) {
+      cell.hasFlag = !cell.hasFlag
+      const flagCount = this.grid.reduce((accumulator, currentCell) => {
+        if (currentCell.hasFlag) {
           return accumulator + 1
         }
         return accumulator
@@ -125,6 +131,105 @@ export default {
 
       this.bombCount = this.bombs - flagCount
       this.haveWeWon()
+    },
+    doubleClick (cell, i) {
+      if (this.finished) {
+        return undefined
+      }
+
+      if (cell.isFree === false) {
+        return undefined
+      }
+
+      this.setNeighborhood(cell, i)
+      if (!cell.bombCount) {
+        return undefined
+      }
+
+      let flagCount = 0
+      cell.neighborhood.forEach((j) => {
+        if (this.grid[j].hasFlag) {
+          flagCount += 1
+        }
+      })
+
+      if (flagCount === cell.bombCount) {
+        this.checkNeighborhood(cell, true)
+      }
+    },
+    clickCell (cell, i) {
+      if (this.finished) {
+        return undefined
+      }
+
+      if (cell.hasFlag) {
+        return undefined
+      }
+
+      if (cell.isFree) {
+        return undefined
+      }
+
+      if (cell.hasBomb) {
+        this.grid.forEach((checkCell) => {
+          if (checkCell.hasBomb) {
+            checkCell.isFree = true
+          }
+        })
+        this.finished = true
+        return undefined
+      }
+
+      this.setNeighborhood(cell, i)
+      cell.isFree = true
+      this.checkNeighborhood(cell)
+      this.haveWon()
+    },
+    checkNeighborhood (cell, force) {
+      if (cell.bombCount !== 0 && force !== true) {
+        return undefined
+      }
+
+      cell.neighborhood.forEach((i) => {
+        this.clickCell(this.grid[i], i)
+      })
+    },
+    setNeighborhood (cell, i) {
+      if (cell.neighborhood !== null) {
+        return undefined
+      }
+
+      const neighborhood = []
+      let bombCount = 0
+      for (let x = -1; x < 2; x += 1) {
+        for (let y = -1; y < 2; y += 1) {
+          const cellIndex = this.getIndex(i, x, y)
+          if (cellIndex !== false) {
+            neighborhood.push(cellIndex)
+            if (this.grid[cellIndex].hasBomb) {
+              bombCount += 1
+            }
+          }
+        }
+      }
+
+      cell.bombCount = bombCount
+      cell.neighborhood = neighborhood
+    },
+    getIndex (i, x, y) {
+      if (x === 0 && y === 0) {
+        return false
+      }
+
+      if ((i % this.cols) + x < 0 || (i % this.cols) + x >= this.cols) {
+        return false
+      }
+
+      if (Math.floor(i / this.cols) + y < 0 || Math.floor(i / this.cols) + y >= this.rows) {
+        return false
+      }
+
+      return i + (y * this.cols + x)
     },
     endGame () {
       this.$router.push({ path: '/' })
