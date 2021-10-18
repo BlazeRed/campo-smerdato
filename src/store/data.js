@@ -1,9 +1,9 @@
 const dataVuexModule = {
   state: {
     settings: {
-      rows: 16,
-      columns: 30,
-      bombs: 99
+      rows: 9,
+      columns: 9,
+      bombs: 10
     }
   },
 

@@ -13,7 +13,7 @@
             v-bind:thumb-color="rows.color"
             v-bind:thumb-label="rowsPressed"
             v-bind:min="min"
-            v-bind:max="max"
+            v-bind:max="maxRows"
             v-on:mousedown="rowsPressed = true"
             v-on:mouseup="!rowsPressed"
             track-color="blue-grey lighten-4"
@@ -28,7 +28,7 @@
             v-bind:thumb-color="columns.color"
             v-bind:thumb-label="columnsPressed"
             v-bind:min="min"
-            v-bind:max="max"
+            v-bind:max="maxCols"
             v-on:mousedown="columnsPressed = true"
             v-on:mouseup="!columnsPressed"
             track-color="blue-grey lighten-4"
@@ -85,7 +85,8 @@ export default {
 
   data: () => ({
     min: 9,
-    max: 100,
+    maxRows: 24,
+    maxCols: 30,
     columnsPressed: false,
     rowsPressed: false,
     bombsPressed: false,
