@@ -19,8 +19,8 @@
   display: flex;
   font-size: 1.3em;
   justify-content: center;
-  min-height: 25px;
-  min-width: 25px;
+  height: 26px;
+  width: 26px;
 }
 
 .bomb {
@@ -31,7 +31,7 @@
   background: rgba(0, 0, 0, 0.05);
 }
 
-.flag:before {
+.flag::before {
   content: '🪰';
 }
 </style>

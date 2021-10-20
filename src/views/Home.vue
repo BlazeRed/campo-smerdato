@@ -47,7 +47,11 @@
             v-on:mousedown="bombsPressed = true"
             v-on:mouseup="!bombsPressed"
             track-color="blue-grey lighten-4"
-          />
+          >
+            <template v-slot:label>
+              <span class="black--text" >&#128169;</span>
+            </template>
+          </v-slider>
           <span>{{ bombs.val }}</span>
         </div>
       </v-card-text>
@@ -92,7 +96,7 @@ export default {
     bombsPressed: false,
     rows: { label: 'Righe', val: 1, color: 'blue-grey' },
     columns: { label: 'Colonne', val: 1, color: 'blue-grey' },
-    bombs: { label: '💩', val: 0, color: 'brown' }
+    bombs: { label: '', val: 0, color: 'brown' }
   }),
 
   beforeMount () {

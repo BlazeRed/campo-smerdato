@@ -1,9 +1,14 @@
 <template>
   <v-container class="container" >
-    <v-card class="card-width">
+    <v-card>
       <v-toolbar color="brown" dark flat text>
         <v-toolbar-title>Prova a non pestarla!</v-toolbar-title>
       </v-toolbar>
+      <div row class="mt-3">
+        <span>{{ bombCount }}</span>
+        <v-icon v-on:click="initGrid" class="pa-1 black--text">&#128169;</v-icon>
+        <span>Here goes timer</span>
+      </div>
       <v-card-text>
         <div class="minesweeper-grid" v-bind:style="getGridStyle()">
           <Cell
@@ -22,6 +27,28 @@
         <v-btn color="brown" v-on:click="endGame()" dark>Chiudi la partita</v-btn>
       </v-card-actions>
     </v-card>
+
+    <v-dialog v-model="won" max-width="45ch" persistent>
+      <v-card class="won-card" max-height="30ch">
+        <v-tooltip top>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs"
+              v-on="on"
+              v-on:click="initGrid"
+              class="ms-2 mt-2"
+              fab
+              icon
+              small
+            >
+            <v-icon>mdi-restart</v-icon>
+            </v-btn>
+          </template>
+          <span>Ricomincia</span>
+        </v-tooltip>
+        <div class="won-celebration black--text">&#128169;</div>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -34,21 +61,38 @@
   align-items: center;
 }
 
-.card-width {
-  min-width: 70ch;
-}
-
 .minesweeper-grid {
   user-select: none;
   position: relative;
   overflow: auto;
   display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  grid-auto-rows: 1fr;
+  grid-template-columns: repeat(9, min-content);
+  grid-auto-rows: min-content;
+}
+
+div[row] {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 1em;
+}
+
+.won-card {
+  background-image: url("~@/assets/confetti.gif");
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.won-celebration {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 15ch;
 }
 </style>
 <script>
-import Cell from '../components/Cell.vue'
+import Cell from '../components/Cell'
 
 export default {
   name: 'Minesweeper',
@@ -61,7 +105,8 @@ export default {
     bombs: undefined,
     bombCount: 0,
     won: false,
-    grid: []
+    grid: [],
+    stepOn: false
   }),
 
   beforeMount () {
@@ -82,6 +127,7 @@ export default {
     initGrid () {
       const size = this.rows * this.cols
       this.grid = []
+      this.bombCount = this.bombs
 
       // Reset grid
       for (let i = 0; i < size; i += 1) {
@@ -95,15 +141,17 @@ export default {
       }
 
       // Add random bombs
-      while (this.bombs > 0) {
+      while (this.bombCount > 0) {
         const num = Math.floor(Math.random() * size)
         if (this.grid[num].hasBomb === false) {
-          this.bombs -= 1
+          this.bombCount -= 1
           this.grid[num].hasBomb = true
         }
       }
 
       this.won = false
+      this.stepOn = false
+      // if (this.bombs <= 0) this.bombs = this.$store.getters.getBombs
       this.bombCount = this.bombs
     },
     haveWon () {
@@ -113,10 +161,15 @@ export default {
 
       const remainingGrid = this.grid.find(g => !g.isFree && !g.hasFlag)
       if (!remainingGrid) {
+        this.stepOn = true
         this.won = true
       }
     },
     addFlag (cell) {
+      if (this.stepOn) {
+        return undefined
+      }
+
       if (cell.isFree) {
         return undefined
       }
@@ -130,10 +183,10 @@ export default {
       }, 0)
 
       this.bombCount = this.bombs - flagCount
-      this.haveWeWon()
+      this.haveWon()
     },
     doubleClick (cell, i) {
-      if (this.finished) {
+      if (this.stepOn) {
         return undefined
       }
 
@@ -158,7 +211,7 @@ export default {
       }
     },
     clickCell (cell, i) {
-      if (this.finished) {
+      if (this.stepOn) {
         return undefined
       }
 
@@ -176,7 +229,7 @@ export default {
             checkCell.isFree = true
           }
         })
-        this.finished = true
+        this.stepOn = true
         return undefined
       }
 
