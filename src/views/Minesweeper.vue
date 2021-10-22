@@ -151,7 +151,6 @@ export default {
 
       this.won = false
       this.stepOn = false
-      // if (this.bombs <= 0) this.bombs = this.$store.getters.getBombs
       this.bombCount = this.bombs
     },
     haveWon () {
@@ -160,17 +159,14 @@ export default {
       }
 
       const remainingGrid = this.grid.find(g => !g.isFree && !g.hasFlag)
+      console.log(remainingGrid)
       if (!remainingGrid) {
         this.stepOn = true
         this.won = true
       }
     },
     addFlag (cell) {
-      if (this.stepOn) {
-        return undefined
-      }
-
-      if (cell.isFree) {
+      if (this.stepOn || cell.isFree) {
         return undefined
       }
 
@@ -186,11 +182,7 @@ export default {
       this.haveWon()
     },
     doubleClick (cell, i) {
-      if (this.stepOn) {
-        return undefined
-      }
-
-      if (cell.isFree === false) {
+      if (this.stepOn || !cell.isFree) {
         return undefined
       }
 
@@ -211,15 +203,7 @@ export default {
       }
     },
     clickCell (cell, i) {
-      if (this.stepOn) {
-        return undefined
-      }
-
-      if (cell.hasFlag) {
-        return undefined
-      }
-
-      if (cell.isFree) {
+      if (this.stepOn || cell.hasFlag || cell.isFree) {
         return undefined
       }
 
