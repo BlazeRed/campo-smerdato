@@ -7,7 +7,7 @@
       <div row class="mt-3">
         <span>{{ bombCount }}</span>
         <v-icon v-on:click="initGrid" class="pa-1 black--text">&#128169;</v-icon>
-        <span>Here goes timer</span>
+        <span>{{ displayTimer }}</span>
       </div>
       <v-card-text>
         <div class="minesweeper-grid" v-bind:style="getGridStyle()">
@@ -106,7 +106,9 @@ export default {
     bombCount: 0,
     won: false,
     grid: [],
-    stepOn: false
+    stepOn: false,
+    timer: undefined,
+    displayTimer: 0
   }),
 
   beforeMount () {
@@ -133,7 +135,7 @@ export default {
       for (let i = 0; i < size; i += 1) {
         this.grid.push({
           hasBomb: false,
-          isFree: false,
+          isOpen: false,
           hasFlag: false,
           bombCount: 0,
           neighborhood: null
@@ -152,21 +154,24 @@ export default {
       this.won = false
       this.stepOn = false
       this.bombCount = this.bombs
+      this.initTimer()
     },
     haveWon () {
-      if (this.bombCount !== 0) {
-        return undefined
-      }
+      const remainingBombCount = this.grid.reduce((acc, g) => {
+        if (!g.isOpen) acc++
+        return acc
+      }, 0)
 
-      const remainingGrid = this.grid.find(g => !g.isFree && !g.hasFlag)
-      console.log(remainingGrid)
-      if (!remainingGrid) {
+      const remainingGrid = this.grid.find(g => !g.isOpen && !g.hasFlag)
+
+      if (!remainingGrid || remainingBombCount === this.bombs) {
         this.stepOn = true
         this.won = true
+        this.stopTimer()
       }
     },
     addFlag (cell) {
-      if (this.stepOn || cell.isFree) {
+      if (this.stepOn || cell.isOpen) {
         return undefined
       }
 
@@ -182,7 +187,7 @@ export default {
       this.haveWon()
     },
     doubleClick (cell, i) {
-      if (this.stepOn || !cell.isFree) {
+      if (this.stepOn || !cell.isOpen) {
         return undefined
       }
 
@@ -203,22 +208,27 @@ export default {
       }
     },
     clickCell (cell, i) {
-      if (this.stepOn || cell.hasFlag || cell.isFree) {
+      const cellClosed = this.grid.find(g => g.isOpen || g.hasFlag)
+
+      if (!cellClosed) this.startTimer()
+
+      if (this.stepOn || cell.hasFlag || cell.isOpen) {
         return undefined
       }
 
       if (cell.hasBomb) {
         this.grid.forEach((checkCell) => {
           if (checkCell.hasBomb) {
-            checkCell.isFree = true
+            checkCell.isOpen = true
           }
         })
         this.stepOn = true
+        this.stopTimer()
         return undefined
       }
 
       this.setNeighborhood(cell, i)
-      cell.isFree = true
+      cell.isOpen = true
       this.checkNeighborhood(cell)
       this.haveWon()
     },
@@ -267,6 +277,16 @@ export default {
       }
 
       return i + (y * this.cols + x)
+    },
+    initTimer () {
+      this.stopTimer()
+      this.displayTimer = 0
+    },
+    startTimer () {
+      this.timer = setInterval(() => { this.displayTimer++ }, 1000)
+    },
+    stopTimer () {
+      clearInterval(this.timer)
     },
     endGame () {
       this.$router.push({ path: '/' })

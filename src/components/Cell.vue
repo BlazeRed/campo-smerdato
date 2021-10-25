@@ -1,9 +1,9 @@
 <template>
   <div v-bind:class="`minesweeper-cell ${getClass()}`">
-    <div v-if="cell.isFree && cell.bombCount">
+    <div v-if="cell.isOpen && cell.bombCount">
       {{ cell.bombCount }}
     </div>
-    <div v-if="cell.isFree && cell.hasBomb">
+    <div v-if="cell.isOpen && cell.hasBomb">
       &#128169;
     </div>
   </div>
@@ -47,10 +47,10 @@ export default {
 
   methods: {
     getClass () {
-      if (this.cell.isFree && this.cell.hasBomb) {
+      if (this.cell.isOpen && this.cell.hasBomb) {
         return 'bomb'
       }
-      if (this.cell.isFree) {
+      if (this.cell.isOpen) {
         return 'open'
       }
       if (this.cell.hasFlag) {
