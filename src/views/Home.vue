@@ -1,5 +1,5 @@
 <template>
-  <v-container class="container" >
+  <v-container class="container bg-transparent" >
     <v-card class="card-width">
       <v-toolbar color="brown" dark flat text>
         <v-toolbar-title>Campo smerdato</v-toolbar-title>
@@ -78,21 +78,29 @@
       </v-card-actions>
     </v-card>
 
-    <v-dialog v-model="showRecords" max-width="42ch" persistent scrollable>
+    <v-dialog v-model="showRecords" max-width="52ch" persistent scrollable>
       <v-card class="record-height">
-        <v-card-title>Ecco i record merdosi</v-card-title>
+        <v-card-title><span class="brown--text">R</span>ecord merdosi</v-card-title>
         <v-card-text>
-          <span v-if="records.length <= 0">Nessuno ha fatto abbastanza schifo.</span>
           <v-data-table
             v-bind:headers="headers"
             v-bind:items="records"
             v-bind:items-per-page="-1"
             v-bind:sort-by="['time']"
             v-bind:sort-desc="[true]"
+            no-data-text="Nessuno ha ancora flexato."
             hide-default-footer
           >
+            <template slot="item.name" slot-scope="{ item }">
+              <div class="font-weight-bold">{{ item.name }}</div>
+            </template>
+
             <template slot="item.time" slot-scope="{ item }">
-              {{ item.time }}s
+              <div class="font-weight-bold">{{ item.time }}<span class="brown--text">s</span></div>
+            </template>
+
+            <template slot="item.conf" slot-scope="{ item }">
+              <div class="caption brown--text">{{ item.conf.h }}x{{ item.conf.w }} ({{ item.conf.b }})</div>
             </template>
           </v-data-table>
         </v-card-text>
@@ -146,7 +154,8 @@ export default {
     bombs: { label: '', val: 0, color: 'brown' },
     headers: [
       { text: 'Nome', align: 'start', sortable: false, value: 'name' },
-      { text: 'Record', align: 'end', sortable: false, value: 'time' }
+      { text: 'Record', align: 'center', sortable: false, value: 'time' },
+      { text: 'Modalità', align: 'end', sortable: false, value: 'conf' }
     ],
     records: [],
     showRecords: false
