@@ -3,6 +3,23 @@
     <v-card class="card-width">
       <v-toolbar color="brown" dark flat text>
         <v-toolbar-title>Campo smerdato</v-toolbar-title>
+        <v-spacer />
+        <v-tooltip left>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              v-on:click="showRecords = true"
+              v-bind="attrs"
+              v-on="on"
+              class="pa-4"
+              color="brown darken-3"
+              fab
+              small
+            >
+              <h1>&#128046;</h1>
+            </v-btn>
+          </template>
+          <span>Flex</span>
+        </v-tooltip>
       </v-toolbar>
       <v-card-text>
         <div row>
@@ -60,6 +77,31 @@
         <v-btn color="brown" v-on:click="startGame()" dark>Gioca</v-btn>
       </v-card-actions>
     </v-card>
+
+    <v-dialog v-model="showRecords" max-width="42ch" persistent scrollable>
+      <v-card class="record-height">
+        <v-card-title>Ecco i record merdosi</v-card-title>
+        <v-card-text>
+          <span v-if="records.length <= 0">Nessuno ha fatto abbastanza schifo.</span>
+          <v-data-table
+            v-bind:headers="headers"
+            v-bind:items="records"
+            v-bind:items-per-page="-1"
+            v-bind:sort-by="['time']"
+            v-bind:sort-desc="[true]"
+            hide-default-footer
+          >
+            <template slot="item.time" slot-scope="{ item }">
+              {{ item.time }}s
+            </template>
+          </v-data-table>
+        </v-card-text>
+        <v-card-actions class="pa-2">
+          <v-spacer />
+          <v-btn v-on:click="showRecords = false" color="brown" dark>Chiudi</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -74,6 +116,11 @@
 
 .card-width {
   width: 70ch;
+}
+
+.record-height {
+  height: 42ch;
+  overflow: hidden;
 }
 
 div[row] {
@@ -96,7 +143,13 @@ export default {
     bombsPressed: false,
     rows: { label: 'Righe', val: 1, color: 'blue-grey' },
     columns: { label: 'Colonne', val: 1, color: 'blue-grey' },
-    bombs: { label: '', val: 0, color: 'brown' }
+    bombs: { label: '', val: 0, color: 'brown' },
+    headers: [
+      { text: 'Nome', align: 'start', sortable: false, value: 'name' },
+      { text: 'Record', align: 'end', sortable: false, value: 'time' }
+    ],
+    records: [],
+    showRecords: false
   }),
 
   beforeMount () {
@@ -104,6 +157,10 @@ export default {
     this.rows.val = storeSettings.rows
     this.columns.val = storeSettings.columns
     this.bombs.val = storeSettings.bombs
+  },
+
+  mounted () {
+    this.records = JSON.parse(localStorage.getItem('records') || '[]')
   },
 
   computed: {

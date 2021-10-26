@@ -7,7 +7,7 @@
       <div row class="mt-3">
         <span>{{ bombCount }}</span>
         <v-icon v-on:click="initGrid" class="pa-1 black--text">&#128169;</v-icon>
-        <span>{{ displayTimer }}</span>
+        <span>{{ displayTimer }}s</span>
       </div>
       <v-card-text>
         <div class="minesweeper-grid" v-bind:style="getGridStyle()">
@@ -30,23 +30,37 @@
 
     <v-dialog v-model="won" max-width="45ch" persistent>
       <v-card class="won-card" max-height="30ch">
-        <v-tooltip top>
-          <template v-slot:activator="{ on, attrs }">
+        <div col>
+          <span class="won-celebration black--text">&#128169;</span>
+          <div row>
+            <v-spacer />
             <v-btn
-              v-bind="attrs"
-              v-on="on"
-              v-on:click="initGrid"
-              class="ms-2 mt-2"
-              fab
-              icon
-              small
+              v-on:click="gotoRecord()"
+              class="ma-2"
+              color="brown"
+              dark
             >
-            <v-icon>mdi-restart</v-icon>
+              Prosegui
             </v-btn>
-          </template>
-          <span>Ricomincia</span>
-        </v-tooltip>
-        <div class="won-celebration black--text">&#128169;</div>
+          </div>
+        </div>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="recordDialog" max-width="45ch" persistent>
+      <v-card>
+        <v-card-title>Flexa</v-card-title>
+        <v-card-text>
+          <div row>
+            <v-text-field v-model="nickname" label="Nome"/>
+            <span>{{ displayTimer }}s</span>
+          </div>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn v-on:click="initGrid()" text>Chiudi</v-btn>
+          <v-btn v-on:click="saveRecord()" color="brown" dark>Salva</v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
   </v-container>
@@ -76,6 +90,11 @@ div[row] {
   justify-content: center;
   align-items: center;
   gap: 1em;
+}
+
+div[col] {
+  display: flex;
+  flex-direction: column;
 }
 
 .won-card {
@@ -108,7 +127,10 @@ export default {
     grid: [],
     stepOn: false,
     timer: undefined,
-    displayTimer: 0
+    displayTimer: 0,
+    recordDialog: false,
+    nickname: undefined,
+    records: []
   }),
 
   beforeMount () {
@@ -120,6 +142,7 @@ export default {
 
   mounted () {
     this.initGrid()
+    this.records = JSON.parse(localStorage.getItem('records') || '[]')
   },
 
   methods: {
@@ -154,7 +177,9 @@ export default {
       this.won = false
       this.stepOn = false
       this.bombCount = this.bombs
-      this.initTimer()
+      this.recordDialog = false
+      this.stopTimer()
+      this.resetTimer()
     },
     haveWon () {
       const remainingBombCount = this.grid.reduce((acc, g) => {
@@ -278,18 +303,31 @@ export default {
 
       return i + (y * this.cols + x)
     },
-    initTimer () {
-      this.stopTimer()
-      this.displayTimer = 0
-    },
     startTimer () {
       this.timer = setInterval(() => { this.displayTimer++ }, 1000)
     },
     stopTimer () {
       clearInterval(this.timer)
     },
+    resetTimer () {
+      this.displayTimer = 0
+    },
     endGame () {
       this.$router.push({ path: '/' })
+    },
+    saveRecord () {
+      const newRecord = {
+        name: this.nickname,
+        time: this.displayTimer
+      }
+
+      this.records.push(newRecord)
+      localStorage.setItem('records', JSON.stringify(this.records))
+      this.recordDialog = false
+    },
+    gotoRecord () {
+      this.won = false
+      this.recordDialog = true
     }
   }
 

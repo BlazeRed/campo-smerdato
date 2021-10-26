@@ -12,7 +12,7 @@
 <style scoped>
 .minesweeper-cell {
   align-items: center;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgb(29, 179, 21, 0.9);
   border: 1px white solid;
   color: #2c3e50;
   cursor: pointer;
@@ -24,11 +24,11 @@
 }
 
 .bomb {
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(29, 179, 21, 0.2);
 }
 
 .open {
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(29, 179, 21, 0.2);
 }
 
 .flag::before {
