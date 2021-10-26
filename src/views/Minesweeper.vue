@@ -1,12 +1,14 @@
 <template>
-  <v-container class="container" >
+  <v-container class="container bg-transparent">
     <v-card>
       <v-toolbar color="brown" dark flat text>
         <v-toolbar-title>Prova a non pestarla!</v-toolbar-title>
       </v-toolbar>
       <div row class="mt-3">
         <span>{{ bombCount }}</span>
-        <v-icon v-on:click="initGrid" class="pa-1 black--text">&#128169;</v-icon>
+        <v-btn v-on:click="initGrid" class="pa-1 mx-4 black--text" fab small>
+          <h1>&#128169;</h1>
+        </v-btn>
         <span>{{ displayTimer }}s</span>
       </div>
       <v-card-text>
@@ -24,7 +26,10 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer/>
-        <v-btn color="brown" v-on:click="endGame()" dark>Chiudi la partita</v-btn>
+        <v-btn color="brown" v-on:click="endGame()" dark>
+          Non sopporto il tanfo
+        </v-btn>
+        <v-spacer/>
       </v-card-actions>
     </v-card>
 
@@ -40,7 +45,7 @@
               color="brown"
               dark
             >
-              Prosegui
+              Allora va... e flexa!
             </v-btn>
           </div>
         </div>
@@ -49,11 +54,11 @@
 
     <v-dialog v-model="recordDialog" max-width="45ch" persistent>
       <v-card>
-        <v-card-title>Flexa</v-card-title>
+        <v-card-title><span class="brown--text">F</span>lexa</v-card-title>
         <v-card-text>
           <div row>
             <v-text-field v-model="nickname" label="Nome"/>
-            <span>{{ displayTimer }}s</span>
+            <div class="font-weight-bold">{{ displayTimer }}<span class="brown--text">s</span></div>
           </div>
         </v-card-text>
         <v-card-actions>
@@ -130,7 +135,9 @@ export default {
     displayTimer: 0,
     recordDialog: false,
     nickname: undefined,
-    records: []
+    records: [],
+    victorySong: new Audio('/celebration.mp3'),
+    fart: new Audio('/fart.mp3')
   }),
 
   beforeMount () {
@@ -150,6 +157,8 @@ export default {
       return `grid-template-columns: repeat(${this.cols}, 1fr);`
     },
     initGrid () {
+      this.stopAudio()
+
       const size = this.rows * this.cols
       this.grid = []
       this.bombCount = this.bombs
@@ -193,6 +202,9 @@ export default {
         this.stepOn = true
         this.won = true
         this.stopTimer()
+
+        // Start victory song
+        this.victorySong.play()
       }
     },
     addFlag (cell) {
@@ -249,6 +261,11 @@ export default {
         })
         this.stepOn = true
         this.stopTimer()
+
+        // Fart
+        this.stopAudio()
+        this.fart.play()
+
         return undefined
       }
 
@@ -316,9 +333,16 @@ export default {
       this.$router.push({ path: '/' })
     },
     saveRecord () {
+      this.stopAudio()
+
       const newRecord = {
         name: this.nickname,
-        time: this.displayTimer
+        time: this.displayTimer,
+        conf: {
+          h: this.rows,
+          w: this.cols,
+          b: this.bombs
+        }
       }
 
       this.records.push(newRecord)
@@ -328,6 +352,12 @@ export default {
     gotoRecord () {
       this.won = false
       this.recordDialog = true
+    },
+    stopAudio () {
+      this.victorySong.pause()
+      this.victorySong.currentTime = 0
+      this.fart.pause()
+      this.fart.currentTime = 0
     }
   }
 
