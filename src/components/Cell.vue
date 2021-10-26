@@ -12,7 +12,7 @@
 <style scoped>
 .minesweeper-cell {
   align-items: center;
-  background: rgb(29, 179, 21, 0.9);
+  background: rgb(29, 179, 21, 0.7);
   border: 1px white solid;
   color: #2c3e50;
   cursor: pointer;
